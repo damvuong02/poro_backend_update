@@ -1,0 +1,6 @@
+Đổi địa chỉ IP trong env REVERB_HOST
+php artisan config:cache
+php artisan cache:clear
+chay server: php artisan serve --host=192.168.100.125 --port=8000
+chay queue: php artisan queue:listen
+chay reverb: php artisan reverb:start --host="192.168.100.125" --port=8080 --debug
