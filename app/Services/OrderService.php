@@ -3,6 +3,8 @@ namespace App\Services;
 
 use App\Jobs\CreateOrderJob;
 use App\Jobs\DeleteUpdateOrderJob;
+use App\Models\Bill;
+use App\Repositories\BillRepository;
 use App\Repositories\FoodRepository;
 use App\Repositories\OrderRepository;
 use App\Repositories\TableRepository;
@@ -14,17 +16,19 @@ class OrderService
     protected $foodRepo;
     protected $tableRepo;
     protected $notificationService;
+    protected $billRepo;
+
 
     /**
      * Class constructor.
      */
-    public function __construct(OrderRepository $orderRepo, FoodRepository $foodRepo, TableRepository $tableRepo, WaiterNotificationService $notificationService)
+    public function __construct(OrderRepository $orderRepo, FoodRepository $foodRepo, TableRepository $tableRepo, WaiterNotificationService $notificationService, BillRepository $billRepo)
     {
         $this->orderRepo = $orderRepo;
         $this->foodRepo = $foodRepo;
         $this->tableRepo = $tableRepo;
         $this->notificationService = $notificationService;
-
+        $this->billRepo = $billRepo;
     }
 
     function getAllOrder()
@@ -62,7 +66,6 @@ class OrderService
         $successOrder = []; //Mảng lưu các Order được tạo thành công
         // Bắt đầu transaction
         DB::beginTransaction();
-
         try {
             foreach ($data as $index => $value) {
                 $food = $this->foodRepo->findById($value['food_id']);
@@ -79,9 +82,9 @@ class OrderService
                 } else {
                     $orderData = [
                         'food_id' => $value['food_id'],
+                        'bill_id' => $value['bill_id'],
                         'price' => $value['price'],
                         'quantity' => $value['quantity'],
-                        'table_name' => $value['table_name'],
                         'order_status' => $food->need_cooking == 0 ? "Done" : "New",
                         'note' => $value['note'],
                     ];

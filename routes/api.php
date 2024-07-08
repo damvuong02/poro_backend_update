@@ -64,6 +64,7 @@ Route::get('/order/get-order-by-status',[OrderController::class, 'getOrderByStat
 
 //bill section
 Route::get('/bill/all-bill',[BillController::class,'getAllBill']);
+Route::get('/bill/new-bill-by-table',[BillController::class,'getNewBillByTable']);
 Route::post('/bill/create-bill',[BillController::class, 'createBill']);
 Route::post('/bill/update-bill/{id}',[BillController::class, 'updateBill']);
 Route::post('/bill/delete-bill/{id}',[BillController::class, 'deleteBill']);

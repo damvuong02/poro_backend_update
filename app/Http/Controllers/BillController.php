@@ -24,17 +24,19 @@ class BillController extends Controller
     {   
         return response()->json($this->billService->getAllBill(), 200);
     }
-
+    
+    function getNewBillByTable(Request $request)
+    {   
+        return response()->json($this->billService->getNewBillByTable($request->input('table_id')), 200);
+    }
     
     function createBill(Request $request) {
         $rules = [
-            'table_name' => 'required',
-            'bill_detail' => 'required',
+            'table_id' => 'required',
             'created_at' => 'required',
         ];
         $messages = [
-            'table_name.required' => 'Tên bàn là bắt buộc.',
-            'bill_detail.required'   => 'Chi tiết hóa đơn là bắt buộc.',
+            'table_id.required' => 'Bàn không được để trống',
             'created_at.required'   => 'Ngày tạo hóa đơn là bắt buộc.',
 
         ];
@@ -43,13 +45,14 @@ class BillController extends Controller
         if ($validator->fails()) {
             return response()->json(['message' => $validator->errors()], 422);
         }
-        $result = null;
-        if($request->has('account_id')){
-            $result = $this->billService->cashierCreateBill($request->all());
-        }else{
+        $result = $this->billService->createBill($request->all());
+        // $result = null;
+        // if($request->has('account_id')){
+        //     $result = $this->billService->cashierCreateBill($request->all());
+        // }else{
 
-            $result = $this->billService->createBill($request->all());
-        }
+        //     $result = $this->billService->createBill($request->all());
+        // }
         if($result){
             return response()->json(["message" => "Thêm hóa đơn thành công", "data" => $result], 200);
         }   else {

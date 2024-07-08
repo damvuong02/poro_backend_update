@@ -19,7 +19,14 @@ class BillRepository extends BaseRepository
         // return $this->model->latest()->get()->load('account', 'table', 'orders');
         return $this->model->latest()->with(['account', 'table', 'orders.food'])->get();
     }
-
+    public function getNewBillByTable($table_id){
+        return $this->model->latest()
+                       ->with(['account', 'table', 'orders.food'])
+                       ->where('table_id', $table_id)
+                       ->whereNull('account_id')
+                       ->get();
+    }
+    
     public function create($data = []){
         $result = $this->model->create($data);
         $result->created_at = $data["created_at"];
@@ -52,21 +59,19 @@ class BillRepository extends BaseRepository
     
     private function getRevenueByDay($day){
         $totalRevenue = 0; // Khởi tạo biến tổng doanh thu
-        
-        // Lấy danh sách hóa đơn của ngày cụ thể
-        $bills = Bill::whereDate('created_at', $day)->get();
-        
+    
+        // Lấy danh sách hóa đơn của ngày cụ thể và nạp trước các Order liên quan
+        $bills = Bill::whereDate('created_at', $day)->with('orders')->get();
+    
         // Lặp qua từng hóa đơn
         foreach ($bills as $bill) {
-            // Decode trường "bill_detail" để có thể truy cập thông tin chi tiết của mỗi món hàng
-            $billDetails = json_decode($bill->bill_detail, true);
-            // Lặp qua từng chi tiết hóa đơn
-            foreach ($billDetails as $detail) {
-                // Tính tổng doanh thu từ giá tiền và số lượng của mỗi món hàng
-                $totalRevenue += $detail['food']['price'] * $detail['quantity'];
+            // Lặp qua từng Order trong mỗi hóa đơn
+            foreach ($bill->orders as $order) {
+                // Tính tổng doanh thu từ giá tiền và số lượng của mỗi Order
+                $totalRevenue += $order->price * $order->quantity;
             }
         }
-        
+    
         return $totalRevenue; // Trả về tổng doanh thu cuối cùng
     }
     
@@ -95,28 +100,24 @@ class BillRepository extends BaseRepository
     private function getRevenueByMonth($year, $month){
         $totalRevenue = 0; // Khởi tạo biến tổng doanh thu
         
-        // Lấy danh sách hóa đơn của tháng cụ thể
+        // Lấy danh sách hóa đơn của tháng cụ thể và nạp trước các Order liên quan
         $bills = Bill::whereYear('created_at', $year)
                      ->whereMonth('created_at', $month)
+                     ->with('orders')
                      ->get();
+    
         // Lặp qua từng hóa đơn
         foreach ($bills as $bill) {
-            try {
-                // Decode trường "bill_detail" để có thể truy cập thông tin chi tiết của mỗi món hàng
-                $billDetails = json_decode($bill->bill_detail, true);
-                
-                // Lặp qua từng chi tiết hóa đơn
-                foreach ($billDetails as $detail) {
-                    // Tính tổng doanh thu từ giá tiền và số lượng của mỗi món hàng
-                    $totalRevenue += $detail['food']['price'] * $detail['quantity'];
-                }
-            } catch(Exception) {
-
+            // Lặp qua từng Order trong mỗi hóa đơn
+            foreach ($bill->orders as $order) {
+                // Tính tổng doanh thu từ giá tiền và số lượng của mỗi Order
+                $totalRevenue += $order->price * $order->quantity;
             }
         }
-        
+    
         return $totalRevenue; // Trả về tổng doanh thu cuối cùng
     }
+    
     public function getRevenueByMonthInYear(){   
         $currentYear = Carbon::now()->year;
         $billByDay = [];
@@ -128,8 +129,8 @@ class BillRepository extends BaseRepository
     }
 
     public function getRevenueByYear(){
-        // Lấy tất cả các hóa đơn từ cơ sở dữ liệu
-        $bills = Bill::all();
+        // Lấy tất cả các hóa đơn từ cơ sở dữ liệu và nạp trước các Order liên quan
+        $bills = Bill::with('orders')->get();
         
         // Nhóm các hóa đơn theo năm dựa vào cột `created_at`
         $billsByYear = $bills->groupBy(function($bill) {
@@ -139,32 +140,26 @@ class BillRepository extends BaseRepository
         // Tính toán tổng doanh thu cho mỗi năm và tạo mảng chứa doanh thu theo năm
         $revenueByYear = $billsByYear->mapWithKeys(function ($bills, $year) {
             $totalRevenue = 0; // Khởi tạo tổng doanh thu cho năm hiện tại là 0
-
+    
             // Duyệt qua từng hóa đơn trong nhóm năm hiện tại
             foreach ($bills as $bill) {
-                try {
-                    // Giải mã JSON trong trường `bill_detail` thành mảng
-                    $billDetails = json_decode($bill->bill_detail, true);
-
-                    // Duyệt qua từng mục chi tiết hóa đơn
-                    foreach ($billDetails as $detail) {
-                        // Tính doanh thu của từng mục (giá * số lượng) và cộng vào tổng doanh thu
-                        $totalRevenue += $detail['food']['price'] * $detail['quantity'];
-                    }
-                }catch (Exception){
-                    
+                // Duyệt qua từng Order trong mỗi hóa đơn
+                foreach ($bill->orders as $order) {
+                    // Tính doanh thu của từng mục (giá * số lượng) và cộng vào tổng doanh thu
+                    $totalRevenue += $order->price * $order->quantity;
                 }
             }
-
+    
             // Trả về một mảng có khóa là năm và giá trị là tổng doanh thu của năm đó
             return [$year => $totalRevenue];
         });
-
+    
         // Chuyển đổi kết quả thành mảng (nếu cần thiết)
         $revenueByYearArray = $revenueByYear->toArray();
-
+    
         // Trả về mảng doanh thu theo năm
         return $revenueByYearArray;
     }
+    
 
 }

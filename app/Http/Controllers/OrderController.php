@@ -64,11 +64,13 @@ class OrderController extends Controller
         try {
             $data_order = json_decode($request->data, true); 
             $result = $this->orderService->createOrder($data_order);
+            
             if ($result) {
                 // $successOrder = $result['success_order'];
                 // foreach ($successOrder as $index => $order) {
                 //     CreateOrderJob::dispatch($order->load("food"));
                 // }
+                
                 if($result['success'] === true){
                     return response()->json(["message" => $result['success_order'], "success_order" => $result['success_order'], "result" => true], 200);
                 }else{
