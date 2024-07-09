@@ -37,7 +37,7 @@ class WaiterNotificationController extends Controller
     function deleteWaiterNotification($id) {
         $result = $this->waiterNotificationService->deleteWaiterNotification($id);
         if($result){
-            CreateDeleteNotificationJob::dispatch($result);
+            CreateDeleteNotificationJob::dispatch(json_encode($result));
             NumberOfNotificationJob::dispatch(count($result));
             return response()->json(["message" => $result], 200);
         }   else {

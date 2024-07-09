@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('waiter_notifications', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('table_id');
-            $table->foreign('table_id')->references('id')->on('tables');
+            $table->foreign('table_id')->references('id')->on('tables')->onDelete('cascade');
             $table->string('notification_status');
-            $table->unsignedBigInteger('food_id');
-            $table->foreign('food_id')->references('id')->on('foods');
+            $table->unsignedBigInteger('food_id')->nullable();
+            $table->foreign('food_id')->references('id')->on('foods')->onDelete('set null');
             $table->timestamps();
         });
     }

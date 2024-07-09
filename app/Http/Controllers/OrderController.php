@@ -28,16 +28,16 @@ class OrderController extends Controller
         return response()->json($this->orderService->getAllOrder(), 200);
     }
 
-    public function getOrderByTableAndStatus(Request $request)
-    {
-        $table_name = $request->table_name;
-        $order_status = $request->order_status;
-        $result = $this->orderService->getOrderByTableAndStatus($table_name, $order_status);
-        if ($result){
-            return response()->json($result);
-        }
-        return response()->json(["message" => "Đơn đặt hàng không tồn tại"], 500);
-    }
+    // public function getOrderByTableAndStatus(Request $request)
+    // {
+    //     $table_name = $request->table_name;
+    //     $order_status = $request->order_status;
+    //     $result = $this->orderService->getOrderByTableAndStatus($table_name, $order_status);
+    //     if ($result){
+    //         return response()->json($result);
+    //     }
+    //     return response()->json(["message" => "Đơn đặt hàng không tồn tại"], 500);
+    // }
 
     public function getOrderByTable(Request $request)
     {
@@ -100,20 +100,19 @@ class OrderController extends Controller
     }
 
     public function updateOrder(Request $request, $id)
-    {
+    {   
         $rules = [
             'food_id' => 'required',
+            'bill_id' => 'required',
             'price' => 'required',
             'quantity' => 'required',
-            'table_name' => 'required',
             'order_status' => 'required',
-            'food_name' => 'required',
         ];
         $messages = [
             'food_id.required' => 'Mã mặt hàng là bắt buộc',
+            'bill_id.required'   => 'Mã hóa đơn là bắt buộc.',
             'price.required' => 'Giá bán là bắt buộc.',
             'quantity.required' => 'Số lượng là bắt buộc.',
-            'table_name.required'   => 'Tên bàn là bắt buộc.',
             'order_status.required'   => 'Trạng thái là bắt buộc.',
         ];
 
@@ -123,11 +122,12 @@ class OrderController extends Controller
         }
         $newData = [
             "food_id" => $request->food_id,
+            "bill_id" => $request->bill_id,
             "price" => $request->price,
             "quantity" => $request->quantity,
-            "table_name" => $request->table_name,
             "order_status" => $request->order_status,
             'note' => $request->note,
+            'table_id' => $request->table_id,
         ];
         $result = $this->orderService->updateOrder($newData, $id);
         if($result){

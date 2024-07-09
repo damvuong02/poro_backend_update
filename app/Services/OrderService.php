@@ -36,10 +36,10 @@ class OrderService
         return $this->orderRepo->getAllOrder();
     }
 
-    public function getOrderByTableAndStatus($table_name, $status)
+    public function getOrderByBillAndStatus($bill_id, $status)
     {
-        if (!empty($table_name) && !empty($status)) {
-            return $this->orderRepo->getOrderByTableAndStatus($table_name, $status);
+        if (!empty($bill_id) && !empty($status)) {
+            return $this->orderRepo->getOrderByBillAndStatus($bill_id, $status);
         }
         return false;
     }
@@ -144,9 +144,10 @@ class OrderService
                     
                 }
             }
-            $cookingOrder = $this->getOrderByTableAndStatus($value['table_name'], "Cooking");
-            if(!$cookingOrder){
-                $this->tableRepo->updateStatusByTableName($value['table_name'], "Empty");
+            $bill = $this->billRepo->findBillById($value["bill_id"]);
+            // $cookingOrder = $this->getOrderByBillAndStatus($value['bill_id'], "Cooking");
+            if(count($bill->orders) == 0){
+                $this->tableRepo->update(["table_status" => "Empty"], $bill->table_id);
             } 
             $allOrder = $this->orderRepo->getAllOrder();
             $allOrder =json_encode($allOrder);
@@ -172,32 +173,30 @@ class OrderService
         $result = $this->orderRepo->update($data, $id);
         $allOrder = $this->orderRepo->getAllOrder();
         $allOrder =json_encode($allOrder);
-        $food = $this->foodRepo->findById($result['food_id']);
         DeleteUpdateOrderJob::dispatch($allOrder);
         $notificationData = [
-            "table_name" => $data["table_name"],
-            "food_name" => $food->food_name,
-            "notification_status" => "Cooking",
+            "table_id" => $data["table_id"],
+            "food_id" =>$data['food_id'],
+            "notification_status" => $data['order_status'],
         ];
-        $this->notificationService->createWaiterNotification($notificationData);
+        $noti = $this->notificationService->createWaiterNotification($notificationData);
         return $result;
     }
 
     function deleteOrder($data)
     {   
         $result = $this->orderRepo->delete($data["id"]);
-        if($result){
-            $allOrder = $this->orderRepo->getAllOrder();
-            $allOrder =json_encode($allOrder);
-            $food = $this->foodRepo->findById($data['food_id']);
-            DeleteUpdateOrderJob::dispatch($allOrder);
-            $notificationData = [
-                "table_name" => $data["table_name"],
-                "food_name" => $food->food_name,
-                "notification_status" => "Done",
-            ];
-            $createNotification = $this->notificationService->createWaiterNotification($notificationData);
-        }
+        // if($result){
+        //     $allOrder = $this->orderRepo->getAllOrder();
+        //     $allOrder =json_encode($allOrder);
+        //     DeleteUpdateOrderJob::dispatch($allOrder);
+        //     $notificationData = [
+        //         "table_id" => $data["table_id"],
+        //         "food_id" =>$data['food_id'],
+        //         "notification_status" => "Done",
+        //     ];
+        //     $createNotification = $this->notificationService->createWaiterNotification($notificationData);
+        // }
         
         return $result;
     }

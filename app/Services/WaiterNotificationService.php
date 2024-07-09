@@ -25,7 +25,7 @@ class WaiterNotificationService{
     function createWaiterNotification($data){
         $this->waiterNotificationRepo->create($data);
         $allNotification = $this->waiterNotificationRepo->getAll();
-        CreateDeleteNotificationJob::dispatch($allNotification);
+        CreateDeleteNotificationJob::dispatch(json_encode($allNotification));
         NumberOfNotificationJob::dispatch(count($allNotification));
         return  $allNotification;
     }

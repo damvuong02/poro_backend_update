@@ -16,12 +16,12 @@ class OrderRepository extends BaseRepository
 
     public function getAllOrder()
     {
-        return $this->model->with('food.category')->latest()->get();
+        return $this->model->with('food.category', 'bill', 'bill.table')->latest()->get();
     }
 
-    public function getOrderByTableAndStatus($table_name, $status)
+    public function getOrderByBillAndStatus($bill_id, $status)
     {
-        return $this->model->where('table_name', $table_name)->where('order_status', $status)->with('food.category')->get();
+        return $this->model->where('bill_id', $bill_id)->where('order_status', $status)->with('food.category')->get();
     }
 
     public function getOrderByTable($table_name)

@@ -13,4 +13,9 @@ class WaiterNotificationRepository extends BaseRepository
         return WaiterNotification::class;
     }
 
+    public function getAll()
+    {
+        return $this->model->with('food', 'table')->latest()->get();
+    }
+
 }

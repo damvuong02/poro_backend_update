@@ -19,6 +19,15 @@ class BillRepository extends BaseRepository
         // return $this->model->latest()->get()->load('account', 'table', 'orders');
         return $this->model->latest()->with(['account', 'table', 'orders.food'])->get();
     }
+
+    public function findBillById($id){
+        $result = $this->model->find($id);
+        if($result){
+            return $result->load('account', 'table', 'orders');
+        }
+        return false;
+    }
+    
     public function getNewBillByTable($table_id){
         return $this->model->latest()
                        ->with(['account', 'table', 'orders.food'])

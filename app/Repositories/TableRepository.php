@@ -21,16 +21,16 @@ class TableRepository extends BaseRepository
         return false;
     }
 
-    public function updateStatusByTableName($table_name, $table_status) {
-        $result = $this->model->where('table_status', $table_status)->paginate(10000);
-        if($result){
-            $newData = [
-                "table_name" => $table_name,
-                "table_status" => $table_status,
-            ];
-            return $result->update($newData);
-        }
-        return false;
-    }
+    // public function updateStatusByTableName($table_name, $table_status) {
+    //     $result = $this->model->where('table_status', $table_status)->paginate(10000);
+    //     if($result){
+    //         $newData = [
+    //             "table_name" => $table_name,
+    //             "table_status" => $table_status,
+    //         ];
+    //         return $result->update($newData);
+    //     }
+    //     return false;
+    // }
     
 }
