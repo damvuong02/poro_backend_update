@@ -22,7 +22,7 @@ class OrderSeeder extends Seeder
         $foodIds = Food::pluck('id');
         $billIds = Bill::pluck('id');
 
-        for ($i = 0; $i < 50; $i++) {
+        for ($i = 0; $i < 10; $i++) {
             $foodId = $faker->randomElement($foodIds);
             $food = Food::find($foodId);
 

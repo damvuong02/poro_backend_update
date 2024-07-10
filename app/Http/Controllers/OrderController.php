@@ -90,7 +90,7 @@ class OrderController extends Controller
             $data_order = json_decode($request->data, true); 
             $result = $this->orderService->deleteNewOrder($data_order);
             if ($result) {
-                return response()->json(["message" => "Hủy đơn đặt món thành công"], 200);
+                return response()->json(["message" => $result], 200);
             } else {
                 return response()->json(["message" => "Hủy đơn đặt món thất bại"], 500);
             }

@@ -14,7 +14,7 @@ class OrderService
 {
     protected $orderRepo;
     protected $foodRepo;
-    protected $tableRepo;
+    protected $tableService;
     protected $notificationService;
     protected $billRepo;
 
@@ -22,11 +22,11 @@ class OrderService
     /**
      * Class constructor.
      */
-    public function __construct(OrderRepository $orderRepo, FoodRepository $foodRepo, TableRepository $tableRepo, WaiterNotificationService $notificationService, BillRepository $billRepo)
+    public function __construct(OrderRepository $orderRepo, FoodRepository $foodRepo, TableService $tableService, WaiterNotificationService $notificationService, BillRepository $billRepo)
     {
         $this->orderRepo = $orderRepo;
         $this->foodRepo = $foodRepo;
-        $this->tableRepo = $tableRepo;
+        $this->tableService = $tableService;
         $this->notificationService = $notificationService;
         $this->billRepo = $billRepo;
     }
@@ -147,7 +147,9 @@ class OrderService
             $bill = $this->billRepo->findBillById($value["bill_id"]);
             // $cookingOrder = $this->getOrderByBillAndStatus($value['bill_id'], "Cooking");
             if(count($bill->orders) == 0){
-                $this->tableRepo->update(["table_status" => "Empty"], $bill->table_id);
+                return "0 order";
+                $table = $this->tableService->findById( $bill->table_id);
+                $this->tableService->updateTable(["table_status" => "Empty", 'table_name' => $table->table_name], $bill->table_id);
             } 
             $allOrder = $this->orderRepo->getAllOrder();
             $allOrder =json_encode($allOrder);

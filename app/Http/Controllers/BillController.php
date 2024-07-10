@@ -60,19 +60,18 @@ class BillController extends Controller
         }
         
     }
-
-    function updateBill(Request $request, $id) {
+    
+    function cashierCreateBill(Request $request, $id) {
 
         $rules = [
-            'table_name' => 'required',
-            'bill_detail' => 'required',
+            'table_id' => 'required',
+            'account_id' => 'required',
             'created_at' => 'required',
         ];
         $messages = [
-            'table_name.required' => 'Tên bàn là bắt buộc.',
-            'bill_detail.required'   => 'Chi tiết hóa đơn là bắt buộc.',
+            'table_id.required' => 'Bàn không được để trống',
+            'account_id.required' => 'Tài khoản không được để trống',
             'created_at.required'   => 'Ngày tạo hóa đơn là bắt buộc.',
-
         ];
         
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -81,8 +80,39 @@ class BillController extends Controller
         }
         
         $newData = [
-            "table_name" => $request->table_name,
-            "bill_detail" => $request->bill_detail,
+            "table_id" => $request->table_id,
+            "account_id" => $request->account_id,
+            "created_at" => $request->created_at,
+        ];
+        $result = $this->billService->cashierCreateBill($newData, $id);
+        if($result){
+            return response()->json(["message" => "Xác nhận thanh toán hóa đơn thành công"], 200);
+        }   else {
+            return response()->json(["message" => "Xác nhận thanh toán hóa đơn thất bại"], 500);
+        }
+        
+    }
+
+    function updateBill(Request $request, $id) {
+
+        $rules = [
+            'table_id' => 'required',
+            'account_id' => 'required',
+            'created_at' => 'required',
+        ];
+        $messages = [
+            'table_id.required' => 'Bàn không được để trống',
+            'account_id.required' => 'Tài khoản không được để trống',
+            'created_at.required'   => 'Ngày tạo hóa đơn là bắt buộc.',
+        ];
+        
+        $validator = Validator::make($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()], 422);
+        }
+        
+        $newData = [
+            "table_id" => $request->table_id,
             "account_id" => $request->account_id,
             "created_at" => $request->created_at,
         ];

@@ -61,7 +61,7 @@ class BillRepository extends BaseRepository
     {
         $today = Carbon::today();
 
-        $billsToday = Bill::whereDate('created_at', $today)->get();
+        $billsToday = Bill::whereDate('created_at', $today)->with(['table', 'orders'])->get();
         
         return $billsToday;
     }

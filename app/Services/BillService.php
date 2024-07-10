@@ -7,6 +7,7 @@ use App\Models\Bill;
 use App\Repositories\BillRepository;
 use App\Repositories\FoodRepository;
 use App\Repositories\OrderRepository;
+use App\Repositories\TableRepository;
 use Illuminate\Support\Facades\DB;
 
 class BillService{
@@ -14,6 +15,9 @@ class BillService{
     protected $orderRepo;
     protected $foodRepo;
     protected $notificationRepo;
+    protected $tableService;
+    protected $orderService;
+
     protected $notificationService;
 
 
@@ -21,12 +25,16 @@ class BillService{
     /**
      * Class constructor.
      */
-    public function __construct(BillRepository $billRepository, FoodRepository $foodRepository, WaiterNotificationService $notificationService, OrderRepository $orderRepository)
+    public function __construct(BillRepository $billRepository, FoodRepository $foodRepository, WaiterNotificationService $notificationService, OrderRepository $orderRepository, TableService $tableService, OrderService $orderService)
     {
         $this->billRepo = $billRepository;
         $this->orderRepo = $orderRepository;
         $this->foodRepo = $foodRepository;
         $this->notificationService = $notificationService;
+        $this->tableService = $tableService;
+        $this->orderService = $orderService;
+
+        
 
     }
     
@@ -39,63 +47,56 @@ class BillService{
     function createBill($data){
         return $this->billRepo->create($data);
     }
-    // function cashierCreateBill($data){
-    //     DB::beginTransaction();
+    function cashierCreateBill($data, $bill_id){
+        DB::beginTransaction();
         
-    //     try {
-    //         $orders = $this->orderRepo->getOrderByTable($data["table_name"])->toArray();
-    //         $newOrders = array_filter($orders, function ($order) {
-    //             return $order['order_status'] === 'New';
-    //         });
-    //         $otherOrders = array_values(array_diff_key($orders, $newOrders));
+        try {
+            // $orders = $this->orderRepo->getOrderByTable($data["table_name"])->toArray();
+            $bill = $this->billRepo->findBillById($bill_id);
+            $orders = $bill->orders->toArray();
+            $newOrders = array_filter($orders, function ($order) {
+                return $order['order_status'] === 'New';
+            });
 
-    //         foreach ($newOrders as $index => $value) {   
-    //             // Cập nhật thông tin hàng hóa
-    //             $result = $this->foodRepo->incrementQuantity($value);
-
-    //             if (!$result) {
-    //                 throw new \Exception('Failed to create order or update food information.');
-    //             } else{
+            foreach ($newOrders as $index => $value) {   
+                // Cập nhật thông tin hàng hóa
+                $result = $this->foodRepo->incrementQuantity($value);
+                $result2 = $this->orderRepo->delete($value["id"]);
+                if (!$result || !$result2) {
+                    throw new \Exception('Failed to create order or update food information.');
+                } else{
                     
-    //             }
-    //         }
-    //         $bill_data = [
-    //             "table_name" => $data["table_name"], 
-    //             "account_id" => $data["account_id"], 
-    //             "created_at" => $data["created_at"],
-    //             "bill_detail" => json_encode($otherOrders),
-    //             ];
-    //         $bill = new Bill($bill_data);
-    //         $bill->id = -1;
-    //         if(!empty($otherOrders)) {
-    //             // tạo bill
-    //             $bill = $this->billRepo->create($bill_data);
-    //         }
-    //         //xóa order liên quan
-    //         $this->orderRepo->deleteOrderByTable($data["table_name"]);
+                }
+            }
+            $bill = $this->billRepo->update($data, $bill_id);
+            $table = $this->tableService->findById( $bill->table_id);
+            $this->tableService->updateTable(["table_status" => "Empty", 'table_name' => $table->table_name], $bill->table_id);
+            //bill được tạo bởi Thu Ngân thì tạo thông báo đến phục vụ.
+            $notificationData = [
+                "table_id" => $data["table_id"],
+                
+                "notification_status" =>"Clean",
+            ];
+            $createNotification = $this->notificationService->createWaiterNotification($notificationData);
 
-    //         //bill được tạo bởi Thu Ngân thì tạo thông báo đến phục vụ.
-    //         $notificationData = [
-    //             "table_name" => $data["table_name"],
-    //             "notification_status" => "Clean",
-    //         ];
-    //         $createNotification = $this->notificationService->createWaiterNotification($notificationData);
+            //send event UpdateOrder
+            $allOrder = $this->orderRepo->getAllOrder();
+            if (count($bill->orders) == 0){
+                $result = $this->billRepo->delete($bill_id);
+            }
+            $allOrder =json_encode($allOrder);
+            DeleteUpdateOrderJob::dispatch($allOrder);
+            // Commit transaction nếu tất cả các xử lý đều thành công
+            DB::commit();
+            return true;
 
-    //         //send event UpdateOrder
-    //         $allOrder = $this->orderRepo->getAllOrder();
-    //         $allOrder =json_encode($allOrder);
-    //         DeleteUpdateOrderJob::dispatch($allOrder);
-    //         // Commit transaction nếu tất cả các xử lý đều thành công
-    //         DB::commit();
-    //         return $bill;
+        } catch (\Exception $e) {
+            // Rollback transaction nếu có lỗi
+            DB::rollBack();
 
-    //     } catch (\Exception $e) {
-    //         // Rollback transaction nếu có lỗi
-    //         DB::rollBack();
-
-    //         return null;
-    //     }
-    // }
+            return false;
+        }
+    }
 
     function updateBill($data, $id){
         return $this->billRepo->update($data, $id);

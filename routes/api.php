@@ -73,6 +73,8 @@ Route::get('/bill/bill-today',[BillController::class, 'getBillsToday']);
 Route::get('/bill/weekly-revenue',[BillController::class, 'getRevenueByDayInWeek']);
 Route::get('/bill/monthly-revenue',[BillController::class, 'getRevenueByMonthInYear']);
 Route::get('/bill/year-revenue',[BillController::class, 'getRevenueByYear']);
+Route::post('/bill/cashier-create-bill/{id}',[BillController::class, 'cashierCreateBill']);
+
 
 //waiter notification section
 Route::get('/waiter-notification/all-notification',[WaiterNotificationController::class, 'getAllWaiterNotification']);

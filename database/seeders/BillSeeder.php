@@ -18,7 +18,7 @@ class BillSeeder extends Seeder
         $faker = Faker::create();
         $accountIds = Account::pluck('id');
         $tableIds = Table::pluck('id');
-        for ($i = 0; $i < 50; $i++) {
+        for ($i = 0; $i < 10; $i++) {
             Bill::create([
                 'account_id' => $faker->randomElement($accountIds),
                 'table_id' => $faker->randomElement($tableIds),
