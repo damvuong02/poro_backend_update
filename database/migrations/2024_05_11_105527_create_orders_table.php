@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('food_id');
-            $table->foreign('food_id')->references('id')->on('foods');
+            $table->foreign('food_id')->references('id')->on('foods')->onDelete("cascade");
             $table->unsignedBigInteger('bill_id');
-            $table->foreign('bill_id')->references('id')->on('bills');
+            $table->foreign('bill_id')->references('id')->on('bills')->onDelete("cascade");
             $table->unsignedInteger('quantity');
             $table->unsignedInteger('price');
             $table->enum('order_status', ['New', 'Cooking', 'Done']);

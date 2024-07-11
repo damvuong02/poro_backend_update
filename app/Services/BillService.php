@@ -47,6 +47,38 @@ class BillService{
     function createBill($data){
         return $this->billRepo->create($data);
     }
+
+    function managerCreateBill($bill_data, $order_data){
+        DB::beginTransaction();
+        
+        try {
+            $bill = $this->billRepo->create($bill_data);
+            
+            foreach ($order_data as $index => $value) {
+                $orderData = [
+                    'food_id' => $value['food_id'],
+                    'bill_id' => $bill->id,
+                    'price' => $value['price'],
+                    'quantity' => $value['quantity'],
+                    'order_status' => "Done",
+                    'note' => $value['note'],
+                ];
+                
+                // Tạo đơn hàng
+                $result = $this->orderRepo->create($orderData);
+            }
+            // Commit transaction nếu tất cả các xử lý đều thành công
+            DB::commit();
+            return $this->billRepo->findBillById($bill->id);
+
+        } catch (\Exception $e) {
+            // Rollback transaction nếu có lỗi
+            DB::rollBack();
+
+            return null;
+        }
+    }
+
     function cashierCreateBill($data, $bill_id){
         DB::beginTransaction();
         
@@ -98,8 +130,31 @@ class BillService{
         }
     }
 
-    function updateBill($data, $id){
-        return $this->billRepo->update($data, $id);
+    function updateBill($bill_data, $order_data, $id){
+        DB::beginTransaction();
+        try {
+            $this->orderRepo->deleteOrderByBill($id);
+                foreach ($order_data as $index => $value) {
+                    $orderData = [
+                        'food_id' => $value['food_id'],
+                        'bill_id' => $id,
+                        'price' => $value['price'],
+                        'quantity' => $value['quantity'],
+                        'order_status' => "Done",
+                        'note' => $value['note'],
+                    ];
+                    // Tạo đơn hàng
+                    $result = $this->orderRepo->create($orderData);
+                }
+            // Commit transaction nếu tất cả các xử lý đều thành công
+            DB::commit();
+            return $this->billRepo->update($bill_data, $id);
+        } catch (\Exception $e) {
+            // Rollback transaction nếu có lỗi
+            DB::rollBack();
+            return null;
+        }
+        
     }
 
     function deleteBill($id){

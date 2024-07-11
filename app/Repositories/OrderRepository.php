@@ -24,19 +24,15 @@ class OrderRepository extends BaseRepository
         return $this->model->where('bill_id', $bill_id)->where('order_status', $status)->with('food.category')->get();
     }
 
-    public function getOrderByTable($table_name)
-    {
-        return $this->model->where('table_name', $table_name)->with('food.category')->get();
-    }
 
     public function getOrderByStatus($order_status)
     {
         return $this->model->where('order_status', $order_status)->with('food.category')->get();
     }
 
-    public function deleteOrderByTable($table_name)
+    public function deleteOrderByBill($bill_id)
     {
-        return $this->model->where('table_name', $table_name)->delete();
+        return $this->model->where('bill_id', $bill_id)->delete();
     }
 
     public function create($data = [])

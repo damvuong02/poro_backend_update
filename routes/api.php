@@ -57,7 +57,7 @@ Route::post('/order/create-order',[OrderController::class, 'createOrder']);
 Route::post('/order/update-order/{id}',[OrderController::class, 'updateOrder']);
 Route::post('/order/delete-new-order',[OrderController::class, 'deleteNewOrder']);
 Route::post('/order/delete-order',[OrderController::class, 'deleteOrder']);
-Route::post('/order/delete-order-by-table',[OrderController::class, 'deleteOrderByTableName']);
+Route::post('/order/delete-order-by-bill',[OrderController::class, 'deleteOrderByBill']);
 Route::get('/order/get-order-by-table',[OrderController::class, 'getOrderByTable']);
 Route::get('/order/all-order',[OrderController::class, 'getAllOrder']);
 Route::get('/order/get-order-by-status',[OrderController::class, 'getOrderByStatus']);
@@ -74,6 +74,8 @@ Route::get('/bill/weekly-revenue',[BillController::class, 'getRevenueByDayInWeek
 Route::get('/bill/monthly-revenue',[BillController::class, 'getRevenueByMonthInYear']);
 Route::get('/bill/year-revenue',[BillController::class, 'getRevenueByYear']);
 Route::post('/bill/cashier-create-bill/{id}',[BillController::class, 'cashierCreateBill']);
+Route::post('/bill/manager-create-bill',[BillController::class, 'managerCreateBill']);
+
 
 
 //waiter notification section

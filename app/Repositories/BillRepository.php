@@ -23,7 +23,7 @@ class BillRepository extends BaseRepository
     public function findBillById($id){
         $result = $this->model->find($id);
         if($result){
-            return $result->load('account', 'table', 'orders');
+            return $result->load('account', 'table', 'orders', 'orders.food');
         }
         return false;
     }
@@ -52,7 +52,7 @@ class BillRepository extends BaseRepository
             $result->update($data);
             $result->created_at = $data["created_at"];
             $result->save();
-            return $result->load('account', 'table', 'orders');
+            return $result->load('account', 'table', 'orders', 'orders.food');
         }
         return false;
     }

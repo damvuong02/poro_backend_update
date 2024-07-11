@@ -44,13 +44,6 @@ class OrderService
         return false;
     }
 
-    public function getOrderByTable($table_name)
-    {
-        if (!empty($table_name)) {
-            return $this->orderRepo->getOrderByTable($table_name);
-        }
-        return false;
-    }
 
     public function getOrderByStatus($order_status)
     {
@@ -187,24 +180,12 @@ class OrderService
 
     function deleteOrder($data)
     {   
-        $result = $this->orderRepo->delete($data["id"]);
-        // if($result){
-        //     $allOrder = $this->orderRepo->getAllOrder();
-        //     $allOrder =json_encode($allOrder);
-        //     DeleteUpdateOrderJob::dispatch($allOrder);
-        //     $notificationData = [
-        //         "table_id" => $data["table_id"],
-        //         "food_id" =>$data['food_id'],
-        //         "notification_status" => "Done",
-        //     ];
-        //     $createNotification = $this->notificationService->createWaiterNotification($notificationData);
-        // }
-        
+        $result = $this->orderRepo->delete($data["id"]);       
         return $result;
     }
 
-    function deleteOrderByTable($table_name)
+    function deleteOrderByBill($bill_id)
     {
-        return $this->orderRepo->deleteOrderByTable($table_name);
+        return $this->orderRepo->deleteOrderByBill($bill_id);
     }
 }

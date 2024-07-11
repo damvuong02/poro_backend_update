@@ -46,13 +46,6 @@ class BillController extends Controller
             return response()->json(['message' => $validator->errors()], 422);
         }
         $result = $this->billService->createBill($request->all());
-        // $result = null;
-        // if($request->has('account_id')){
-        //     $result = $this->billService->cashierCreateBill($request->all());
-        // }else{
-
-        //     $result = $this->billService->createBill($request->all());
-        // }
         if($result){
             return response()->json(["message" => "Thêm hóa đơn thành công", "data" => $result], 200);
         }   else {
@@ -93,6 +86,39 @@ class BillController extends Controller
         
     }
 
+    function managerCreateBill(Request $request) {
+
+        $rules = [
+            'table_id' => 'required',
+            'account_id' => 'required',
+            'created_at' => 'required',
+        ];
+        $messages = [
+            'table_id.required' => 'Bàn không được để trống',
+            'account_id.required' => 'Tài khoản không được để trống',
+            'created_at.required'   => 'Ngày tạo hóa đơn là bắt buộc.',
+        ];
+        
+        $validator = Validator::make($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()], 422);
+        }
+        
+        $bill_data = [
+            "table_id" => $request->table_id,
+            "account_id" => $request->account_id,
+            "created_at" => $request->created_at,
+        ];
+        $data_order = json_decode($request->data, true); 
+        $result = $this->billService->managerCreateBill($bill_data, $data_order);
+        if($result){
+            return response()->json(["message" => "Tạo hóa đơn thành công", "data" => $result], 200);
+        }else {
+            return response()->json(["message" => "Tạo hóa đơn thất bại", "data" => $result], 500);
+        }
+        
+    }
+
     function updateBill(Request $request, $id) {
 
         $rules = [
@@ -116,7 +142,8 @@ class BillController extends Controller
             "account_id" => $request->account_id,
             "created_at" => $request->created_at,
         ];
-        $result = $this->billService->updateBill($newData, $id);
+        $data_order = json_decode($request->data, true); 
+        $result = $this->billService->updateBill($newData, $data_order, $id);
         if($result){
             return response()->json(["message" => "Cập nhật hóa đơn thành công", 
             "data" => $result], 200);
