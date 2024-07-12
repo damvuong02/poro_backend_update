@@ -140,7 +140,6 @@ class OrderService
             $bill = $this->billRepo->findBillById($value["bill_id"]);
             // $cookingOrder = $this->getOrderByBillAndStatus($value['bill_id'], "Cooking");
             if(count($bill->orders) == 0){
-                return "0 order";
                 $table = $this->tableService->findById( $bill->table_id);
                 $this->tableService->updateTable(["table_status" => "Empty", 'table_name' => $table->table_name], $bill->table_id);
             } 
