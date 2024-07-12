@@ -92,7 +92,7 @@ class OrderService
                     } else{
                         array_push($successOrder, $result);
                         if($food->need_cooking == 1){
-                            CreateOrderJob::dispatch($result->load("food"));
+                            CreateOrderJob::dispatch($result->load("food", "bill", "bill.table"));
                         }
                     }
                 }
