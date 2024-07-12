@@ -17,7 +17,7 @@ class TableSeeder extends Seeder
         for ($i=1; $i < 10; $i++) { 
             Table::create([
                 'table_name'=>"Bàn ".$i,
-                'table_status'=>$faker->randomElement(['Inactive', 'Empty', 'Serving']),
+                'table_status'=>$faker->randomElement(['Inactive', 'Empty']),
             ]);
         }
     }
