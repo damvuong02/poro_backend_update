@@ -31,7 +31,7 @@ class OrderSeeder extends Seeder
                 'bill_id' => $faker->randomElement($billIds),
                 'quantity' => random_int(1, 10),
                 'price' => $food->price,
-                'order_status' => $faker->randomElement(['New', 'Cooking', 'Done']),
+                'order_status' => 'Done',
                 'note' => $faker->sentence(),
                 'created_at' => now(),
                 'updated_at' => now(),

@@ -29,7 +29,7 @@ class FoodController extends Controller
             'food_name' => 'required|max:200',
             'category_id' => 'required',
             'price' => 'required',
-            'quantity' => 'required'
+            // 'quantity' => 'required'
         ];
         $messages = [
             'food_name.required' => 'Tên mặt hàng là bắt buộc.',
@@ -39,7 +39,7 @@ class FoodController extends Controller
 
             'price.required' => 'Giá bán là bắt buộc.',
 
-            'quantity.required' => 'Số lượng là bắt buộc.',
+            // 'quantity.required' => 'Số lượng là bắt buộc.',
 
         ];
         
@@ -68,7 +68,7 @@ class FoodController extends Controller
             'food_name' => 'required|max:200',
             'category_id' => 'required',
             'price' => 'required',
-            'quantity' => 'required'
+            // 'quantity' => 'required'
         ];
         $messages = [
             'food_name.required' => 'Tên mặt hàng là bắt buộc.',
@@ -78,7 +78,7 @@ class FoodController extends Controller
 
             'price.required' => 'Giá bán là bắt buộc.',
 
-            'quantity.required' => 'Số lượng là bắt buộc.',
+            // 'quantity.required' => 'Số lượng là bắt buộc.',
 
         ];
         

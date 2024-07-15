@@ -64,7 +64,7 @@ class OrderService
                 $food = $this->foodRepo->findById($value['food_id']);
                 
                 // Kiểm tra số lượng hàng còn lại
-                if ($value['quantity'] > $food->quantity) {
+                if ($food->quantity !== null && $value['quantity'] > $food->quantity) {
                     $create_err[] = [
                         'food_id' => $value['food_id'],
                         'food_name' => $food['food_name'],

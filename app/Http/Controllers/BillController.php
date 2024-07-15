@@ -79,7 +79,7 @@ class BillController extends Controller
         ];
         $result = $this->billService->cashierCreateBill($newData, $id);
         if($result){
-            return response()->json(["message" => "Xác nhận thanh toán hóa đơn thành công"], 200);
+            return response()->json(["message" => "Xác nhận thanh toán hóa đơn thành công", "data" => $result], 200);
         }   else {
             return response()->json(["message" => "Xác nhận thanh toán hóa đơn thất bại"], 500);
         }

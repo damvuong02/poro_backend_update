@@ -120,13 +120,13 @@ class BillService{
             DeleteUpdateOrderJob::dispatch($allOrder);
             // Commit transaction nếu tất cả các xử lý đều thành công
             DB::commit();
-            return true;
+            return $bill;
 
         } catch (\Exception $e) {
             // Rollback transaction nếu có lỗi
             DB::rollBack();
 
-            return false;
+            return null;
         }
     }
 
