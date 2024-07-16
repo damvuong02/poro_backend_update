@@ -175,6 +175,24 @@ class BillController extends Controller
         return response()->json($result, 200);
     }
 
+    function getBillsByDate(Request $request) {
+        $rules = [
+            
+            'created_at' => 'required',
+        ];
+        $messages = [
+            'created_at.required'   => 'Ngày tạo hóa đơn là bắt buộc.',
+        ];
+        
+        $validator = Validator::make($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()], 422);
+        }
+        $result = $this->billService->getBillsByDate($request->all());
+        return response()->json($result, 200);
+        
+    }
+
     function getRevenueByDayInWeek()
     {   
         $result = $this->billService->getRevenueByDayInWeek();

@@ -16,7 +16,7 @@ class CreateDeleteNotificationJob implements ShouldQueue
     public $value;
     
     public function __construct( $value)
-    {
+    {   
         $this->value = $value;
     }
 
@@ -27,7 +27,6 @@ class CreateDeleteNotificationJob implements ShouldQueue
     {
         // Log giá trị $value để kiểm tra dữ liệu
    
-
         // Khởi tạo và dispatch sự kiện với dữ liệu
         event(new CreateDeleteNotification($this->value));
     }

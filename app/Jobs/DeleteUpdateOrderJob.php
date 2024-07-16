@@ -26,7 +26,6 @@ class DeleteUpdateOrderJob implements ShouldQueue
     public function handle(): void
     {
         // Log giá trị $value để kiểm tra dữ liệu
-   
 
         // Khởi tạo và dispatch sự kiện với dữ liệu
         event(new DeleteUpdateOrder($this->value));

@@ -107,6 +107,7 @@ class OrderController extends Controller
         if($result){
             return response()->json(["message" => "Cập nhật đơn đặt món thành công", 
             "data" => $result->load('food')], 200);
+            
         }   else {
             return response()->json(["message" => "Cập nhật đơn đặt món thất bại"], 500);
         }

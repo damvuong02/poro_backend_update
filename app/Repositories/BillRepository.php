@@ -61,9 +61,17 @@ class BillRepository extends BaseRepository
     {
         $today = Carbon::today();
 
-        $billsToday = Bill::whereDate('created_at', $today)->with(['table', 'orders'])->get();
+        $billsToday = Bill::whereDate('created_at', $today)->with(['account', 'table', 'orders', 'orders.food'])->get();
         
         return $billsToday;
+    }
+
+    public function getBillsByDate($data = [])
+    {
+        $date = $data["created_at"];
+        $billsByDate = Bill::whereDate('created_at', $date)->with(['account', 'table', 'orders', 'orders.food'])->get();
+        
+        return $billsByDate;
     }
     
     private function getRevenueByDay($day){

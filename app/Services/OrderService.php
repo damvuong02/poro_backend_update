@@ -8,6 +8,7 @@ use App\Repositories\BillRepository;
 use App\Repositories\FoodRepository;
 use App\Repositories\OrderRepository;
 use App\Repositories\TableRepository;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 class OrderService
@@ -143,9 +144,11 @@ class OrderService
                 $table = $this->tableService->findById( $bill->table_id);
                 $this->tableService->updateTable(["table_status" => "Empty", 'table_name' => $table->table_name], $bill->table_id);
             } 
-            $allOrder = $this->orderRepo->getAllOrder();
-            $allOrder =json_encode($allOrder);
-            DeleteUpdateOrderJob::dispatch($allOrder);
+            $cookingOrder = $this->orderRepo->getOrderByStatus("Cooking");
+            $newOrder = $this->orderRepo->getOrderByStatus("New");
+            $mergedOrders = $cookingOrder->merge($newOrder);
+            $mergedOrders =json_encode($mergedOrders);
+            DeleteUpdateOrderJob::dispatch($mergedOrders);
             // Commit transaction nếu tất cả các xử lý đều thành công
             DB::commit();
             return [
@@ -165,9 +168,11 @@ class OrderService
     function updateOrder($data, $id)
     {   
         $result = $this->orderRepo->update($data, $id);
-        $allOrder = $this->orderRepo->getAllOrder();
-        $allOrder =json_encode($allOrder);
-        DeleteUpdateOrderJob::dispatch($allOrder);
+        $cookingOrder = $this->orderRepo->getOrderByStatus("Cooking");
+        $newOrder = $this->orderRepo->getOrderByStatus("New");
+        $mergedOrders = $cookingOrder->merge($newOrder);
+        $mergedOrders =json_encode($mergedOrders);
+        DeleteUpdateOrderJob::dispatch($mergedOrders);
         $notificationData = [
             "table_id" => $data["table_id"],
             "food_id" =>$data['food_id'],
@@ -176,6 +181,13 @@ class OrderService
         $noti = $this->notificationService->createWaiterNotification($notificationData);
         return $result;
     }
+
+    // function updateOrderWithoutNotification($data, $id)
+    // {   
+    //     $result = $this->orderRepo->update($data, $id);
+        
+    //     return $result;
+    // }
 
     function deleteOrder($data)
     {   

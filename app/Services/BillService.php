@@ -100,6 +100,36 @@ class BillService{
                     
                 }
             }
+            $cookingOrders = array_filter($orders, function ($order) {
+                return $order['order_status'] === 'Cooking';
+            });
+            
+            if (count($cookingOrders) !== 0) {
+                foreach ($cookingOrders as $index => $value1) {  
+                    $newData = [
+                        "food_id" => $value1["food_id"],
+                        "bill_id" => $value1["bill_id"],
+                        "price" => $value1["price"],
+                        "quantity" => $value1["quantity"],
+                        "order_status" => "Done",
+                        'note' => $value1["note"],
+                        'table_id' => $bill->table->id,
+                    ];
+                    $result3 = $this->orderRepo->update($newData, $value1["id"]);
+                    
+                    if (!$result3) {
+                        throw new \Exception('Failed to create order or update food information.');
+                    } else{
+                        
+                    }
+                }
+                $cookingOrder = $this->orderRepo->getOrderByStatus("Cooking");
+                $newOrder = $this->orderRepo->getOrderByStatus("New");
+                $mergedOrders = $cookingOrder->merge($newOrder);
+                $mergedOrders =json_encode($mergedOrders);
+                DeleteUpdateOrderJob::dispatch($mergedOrders);    
+            } 
+            
             $bill = $this->billRepo->update($data, $bill_id);
             $table = $this->tableService->findById( $bill->table_id);
             $this->tableService->updateTable(["table_status" => "Empty", 'table_name' => $table->table_name], $bill->table_id);
@@ -111,13 +141,15 @@ class BillService{
             ];
             $createNotification = $this->notificationService->createWaiterNotification($notificationData);
 
-            //send event UpdateOrder
-            $allOrder = $this->orderRepo->getAllOrder();
             if (count($bill->orders) == 0){
                 $result = $this->billRepo->delete($bill_id);
             }
-            $allOrder =json_encode($allOrder);
-            DeleteUpdateOrderJob::dispatch($allOrder);
+            //send event UpdateOrder
+            $cookingOrder = $this->orderRepo->getOrderByStatus("Cooking");
+            $newOrder = $this->orderRepo->getOrderByStatus("New");
+            $mergedOrders = $cookingOrder->merge($newOrder);
+            $mergedOrders =json_encode($mergedOrders);
+            DeleteUpdateOrderJob::dispatch($mergedOrders);
             // Commit transaction nếu tất cả các xử lý đều thành công
             DB::commit();
             return $bill;
@@ -168,7 +200,9 @@ class BillService{
     function getBillsToday(){
         return $this->billRepo->getBillsToday();
     }
-
+    function getBillsByDate($data){
+        return $this->billRepo->getBillsByDate($data);
+    }
     function getRevenueByDayInWeek(){
         return $this->billRepo->getRevenueByDayInWeek();
     }

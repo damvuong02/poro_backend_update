@@ -75,6 +75,9 @@ Route::get('/bill/monthly-revenue',[BillController::class, 'getRevenueByMonthInY
 Route::get('/bill/year-revenue',[BillController::class, 'getRevenueByYear']);
 Route::post('/bill/cashier-create-bill/{id}',[BillController::class, 'cashierCreateBill']);
 Route::post('/bill/manager-create-bill',[BillController::class, 'managerCreateBill']);
+Route::get('/bill/bill-by-date',[BillController::class, 'getBillsByDate']);
+
+
 
 
 
