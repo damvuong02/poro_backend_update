@@ -10,7 +10,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class DeleteUpdateOrder implements ShouldBroadcast
+class CreateNotification implements ShouldBroadcast   
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -19,7 +19,7 @@ class DeleteUpdateOrder implements ShouldBroadcast
      */
     public $data;
     public function __construct($data)
-    {
+    {   
         $this->data = $data; // Khởi tạo thuộc tính với dữ liệu được truyền vào
     }
 
@@ -31,12 +31,12 @@ class DeleteUpdateOrder implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('delete-update-order'),
+            new Channel('create-notification'),
         ];
     }
     public function broadcastAs()
     {
-        return 'delete-update-order';
+        return 'create-notification';
     }
 
     public function broadcastWith()
@@ -44,3 +44,5 @@ class DeleteUpdateOrder implements ShouldBroadcast
         return ['data' => $this->data]; // Trả về dữ liệu cho event
     }
 }
+
+

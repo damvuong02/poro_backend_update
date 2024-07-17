@@ -2,7 +2,8 @@
 
 namespace App\Services;
 
-use App\Jobs\DeleteUpdateOrderJob;
+use App\Jobs\DeleteOrderJob;
+use App\Jobs\UpdateOrderJob;
 use App\Models\Bill;
 use App\Repositories\BillRepository;
 use App\Repositories\FoodRepository;
@@ -97,7 +98,8 @@ class BillService{
                 if (!$result || !$result2) {
                     throw new \Exception('Failed to create order or update food information.');
                 } else{
-                    
+                    $deletedOrders =json_encode($result2);
+                    DeleteOrderJob::dispatch($deletedOrders);    
                 }
             }
             $cookingOrders = array_filter($orders, function ($order) {
@@ -120,14 +122,12 @@ class BillService{
                     if (!$result3) {
                         throw new \Exception('Failed to create order or update food information.');
                     } else{
-                        
+                        $updatedOrder =json_encode($result3);
+                        UpdateOrderJob::dispatch($updatedOrder);    
                     }
                 }
-                $cookingOrder = $this->orderRepo->getOrderByStatus("Cooking");
-                $newOrder = $this->orderRepo->getOrderByStatus("New");
-                $mergedOrders = $cookingOrder->merge($newOrder);
-                $mergedOrders =json_encode($mergedOrders);
-                DeleteUpdateOrderJob::dispatch($mergedOrders);    
+                
+                
             } 
             
             $bill = $this->billRepo->update($data, $bill_id);
@@ -149,7 +149,7 @@ class BillService{
             $newOrder = $this->orderRepo->getOrderByStatus("New");
             $mergedOrders = $cookingOrder->merge($newOrder);
             $mergedOrders =json_encode($mergedOrders);
-            DeleteUpdateOrderJob::dispatch($mergedOrders);
+            DeleteOrderJob::dispatch($mergedOrders);
             // Commit transaction nếu tất cả các xử lý đều thành công
             DB::commit();
             return $bill;

@@ -23,22 +23,10 @@ class WaiterNotificationController extends Controller
     {   
         return response()->json($this->waiterNotificationService->getAllWaiterNotification(), 200);
     }
-    
-    function createWaiterNotification(Request $request) {
-        $result = $this->waiterNotificationService->createWaiterNotification($request->all());
-        if($result){
-            return response()->json(["message" => "Tạo thông báo thành công",
-            "data" => $result], 200);
-        }   else {
-            return response()->json(["message" => "Tạo thông báo thất bại"], 500);
-        }
-    }
 
     function deleteWaiterNotification($id) {
         $result = $this->waiterNotificationService->deleteWaiterNotification($id);
         if($result){
-            CreateDeleteNotificationJob::dispatch(json_encode($result));
-            NumberOfNotificationJob::dispatch(count($result));
             return response()->json(["message" => $result], 200);
         }   else {
             return response()->json(["message" => "Xóa thông báo thất bại"], 500);

@@ -69,11 +69,11 @@ abstract class BaseRepository implements RepositoryInterface{
             $result = $this->model->find($id);
             if($result){
                 $result->delete($id);
-                return true;
+                return $result;
             }
             return false;
         }catch(Exception $ex){
-            return false;
+            return null;
         }
     }
     function search(string $column,$value)

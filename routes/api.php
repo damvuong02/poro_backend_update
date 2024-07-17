@@ -83,7 +83,6 @@ Route::get('/bill/bill-by-date',[BillController::class, 'getBillsByDate']);
 
 //waiter notification section
 Route::get('/waiter-notification/all-notification',[WaiterNotificationController::class, 'getAllWaiterNotification']);
-Route::post('/waiter-notification/create-notification',[WaiterNotificationController::class, 'createWaiterNotification']);
 Route::post('/waiter-notification/delete-notification/{id}',[WaiterNotificationController::class, 'deleteWaiterNotification']);
 
 

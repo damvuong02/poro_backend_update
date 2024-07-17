@@ -2,7 +2,8 @@
 namespace App\Services;
 
 use App\Jobs\CreateOrderJob;
-use App\Jobs\DeleteUpdateOrderJob;
+use App\Jobs\UpdateOrderJob;
+use App\Jobs\DeleteOrderJob;
 use App\Models\Bill;
 use App\Repositories\BillRepository;
 use App\Repositories\FoodRepository;
@@ -135,7 +136,8 @@ class OrderService
                 if (!$result || !$result1) {
                     throw new \Exception('Failed to create order or update food information.');
                 } else{
-                    
+                    $deletedOrder =json_encode($result);
+                    DeleteOrderJob::dispatch($deletedOrder);
                 }
             }
             $bill = $this->billRepo->findBillById($value["bill_id"]);
@@ -144,11 +146,7 @@ class OrderService
                 $table = $this->tableService->findById( $bill->table_id);
                 $this->tableService->updateTable(["table_status" => "Empty", 'table_name' => $table->table_name], $bill->table_id);
             } 
-            $cookingOrder = $this->orderRepo->getOrderByStatus("Cooking");
-            $newOrder = $this->orderRepo->getOrderByStatus("New");
-            $mergedOrders = $cookingOrder->merge($newOrder);
-            $mergedOrders =json_encode($mergedOrders);
-            DeleteUpdateOrderJob::dispatch($mergedOrders);
+            
             // Commit transaction nếu tất cả các xử lý đều thành công
             DB::commit();
             return [
@@ -168,11 +166,9 @@ class OrderService
     function updateOrder($data, $id)
     {   
         $result = $this->orderRepo->update($data, $id);
-        $cookingOrder = $this->orderRepo->getOrderByStatus("Cooking");
-        $newOrder = $this->orderRepo->getOrderByStatus("New");
-        $mergedOrders = $cookingOrder->merge($newOrder);
-        $mergedOrders =json_encode($mergedOrders);
-        DeleteUpdateOrderJob::dispatch($mergedOrders);
+        
+        $updatedOrder =json_encode($result);
+        UpdateOrderJob::dispatch($updatedOrder);
         $notificationData = [
             "table_id" => $data["table_id"],
             "food_id" =>$data['food_id'],
