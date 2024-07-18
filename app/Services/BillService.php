@@ -144,12 +144,7 @@ class BillService{
             if (count($bill->orders) == 0){
                 $result = $this->billRepo->delete($bill_id);
             }
-            //send event UpdateOrder
-            $cookingOrder = $this->orderRepo->getOrderByStatus("Cooking");
-            $newOrder = $this->orderRepo->getOrderByStatus("New");
-            $mergedOrders = $cookingOrder->merge($newOrder);
-            $mergedOrders =json_encode($mergedOrders);
-            DeleteOrderJob::dispatch($mergedOrders);
+            
             // Commit transaction nếu tất cả các xử lý đều thành công
             DB::commit();
             return $bill;
