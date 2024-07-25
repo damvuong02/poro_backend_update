@@ -33,9 +33,9 @@ class WaiterNotificationService{
     }
 
     function deleteWaiterNotification($id){
+        $result = $this->waiterNotificationRepo->delete($id);
         $allNotification = $this->waiterNotificationRepo->getAll();
         NumberOfNotificationJob::dispatch(count($allNotification));
-        $result = $this->waiterNotificationRepo->delete($id);
         DeleteNotificationJob::dispatch(json_encode($result));
         return $result;
     }

@@ -18,6 +18,7 @@ abstract class BaseRepository implements RepositoryInterface{
     //lấy model tương ứng
     abstract function getModel();
     function setModel() {
+        // sử dụng container của Laravel để tạo một instance của model dựa trên tên model.
         $this->model = app()->make(
             $this->getModel()
         );
